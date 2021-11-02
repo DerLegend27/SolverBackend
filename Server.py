@@ -1,9 +1,16 @@
 from http.server import BaseHTTPRequestHandler,HTTPServer
+import io
+import cgi
 
 HOST = "127.0.0.1"
 PORT = 8080
 
 class RequestHandler(BaseHTTPRequestHandler):
+
+    def _set_response(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers
 
     def do_GET(self):
         
@@ -21,9 +28,21 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         except IOError:
             self.send_error(404, "Piss dich!")
+            
+
+    def do_POST(self):
+        
+        ctype, pdict = cgi.parse_header(self.headers["Content-Type"])
+        
+        if ctype == "multipart/form-data":
+            pdict["boundary"] = bytes(pdict["boundary"], "utf-8")
+            form = cgi.parse_multipart(self.rfile, pdict)
+
+        self._set_response()
+        print(form.get("data"))
 
 
-if __name__ == "__main__ ":
+if 1+1==2:
     print("[Server] wird gestartet...")
     http_server = HTTPServer((HOST, PORT), RequestHandler)
     print("[Server] ist gestartet...")
