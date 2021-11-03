@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler,HTTPServer
 import io
+import PIL.Image as Image
 import cgi
 
 HOST = "127.0.0.1"
@@ -16,35 +17,41 @@ class RequestHandler(BaseHTTPRequestHandler):
         
         try:
             html = open("index.html", "rb")
-
-            self.send_response(200)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-
             self.wfile.write(html.read())
-
             html.close()
-            return
+
+            self._set_response()
 
         except IOError:
-            self.send_error(404, "Piss dich!")
+            self.send_error(404, "file not found")
             
 
     def do_POST(self):
         
         ctype, pdict = cgi.parse_header(self.headers["Content-Type"])
-        
+
         if ctype == "multipart/form-data":
             pdict["boundary"] = bytes(pdict["boundary"], "utf-8")
             form = cgi.parse_multipart(self.rfile, pdict)
+        
+        b = form.get("image")
+        
+        try:
+            img = Image.open(io.BytesIO(b[0]))
+            img.show()
 
-        self._set_response()
-        print(form.get("data"))
+            self._set_response()
 
+        except IOError:
+            self.send_error(415, "file-extension is not allowed")
 
-if 1+1==2:
-    print("[Server] wird gestartet...")
+def run():
+    print("HTTP-Server is starting...")
     http_server = HTTPServer((HOST, PORT), RequestHandler)
-    print("[Server] ist gestartet...")
+    print("HTTP-Server is running...")
 
     http_server.serve_forever()
+
+
+if __name__ == '__main__':
+    run()
