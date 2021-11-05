@@ -15,11 +15,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def _set_headers(self):
         self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers
-
-    def do_HEAD(self):
-        self._set_headers()
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
 
     def do_GET(self):
         logging.warning("**GET**")
