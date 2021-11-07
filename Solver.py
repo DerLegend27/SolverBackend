@@ -14,6 +14,72 @@ hidden_size = 256
 batch_size_t = 1
 maxlen = 100
 
+BLOCK_SIZE = 50
+THRESHOLD = 25
+
+def preprocess(image):
+    image = cv2.medianBlur(image, 3)
+    image = cv2.GaussianBlur(image, (3, 3), 0)
+    return 255 - image
+
+def postprocess(image):
+    image = cv2.medianBlur(image, 5)
+    #kernel = numpy.ones((3,3), numpy.uint8)
+    #image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
+    return image
+
+def get_block_index(image_shape, yx, block_size): 
+    y = numpy.arange(max(0, yx[0]-block_size), min(image_shape[0], yx[0]+block_size))
+    x = numpy.arange(max(0, yx[1]-block_size), min(image_shape[1], yx[1]+block_size))
+    return numpy.meshgrid(y, x)
+
+def adaptive_median_threshold(img_in):
+    med = numpy.median(img_in)
+    img_out = numpy.zeros_like(img_in)
+    img_out[img_in - med < THRESHOLD] = 255
+    return img_out
+
+def block_image_process(image, block_size):
+    out_image = numpy.zeros_like(image)
+    for row in range(0, image.shape[0], block_size):
+        for col in range(0, image.shape[1], block_size):
+            idx = (row, col)
+            block_idx = get_block_index(image.shape, idx, block_size)
+            out_image[block_idx] = adaptive_median_threshold(image[block_idx])
+
+    return out_image
+
+def processing_image():
+    image_in = cv2.cvtColor(cv2.imread("images/math-equation.png"), cv2.COLOR_BGR2GRAY)
+
+    image_in = preprocess(image_in)
+    image_out = block_image_process(image_in, BLOCK_SIZE)
+    image_out = postprocess(image_out)
+
+    binaryImage = cv2.adaptiveThreshold(image_out, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 85, 10)
+
+    # For debug purpose only
+    cv2.imshow("processed-image", binaryImage)
+    cv2.waitKey(0)
+    cv2.imwrite("images/processed-image.bmp", binaryImage)
+
+    img_open = Image.open("images/processed-image.bmp").convert("L")
+    img_open2 = torch.from_numpy(np.array(img_open)).type(torch.FloatTensor)
+    img_open2 = img_open2/255.0
+    img_open2 = img_open2.unsqueeze(0)
+    img_open2 = img_open2.unsqueeze(0)
+
+    attention, prediction = solver(img_open2, load_dict())
+    prediction_string = ''
+
+    for i in range(attention.shape[0]):
+        if prediction[i] == '<eol>':
+            continue
+        else:
+            prediction_string = prediction_string + prediction[i]
+
+    return prediction_string
+
 def load_dict():
     fp=open(dictionaries[0])
     stuff=fp.readlines()
@@ -32,43 +98,6 @@ def load_dict():
         
     print("! Dictionary sucessfully iniated !")
     return worddicts_r
-
-def processing_image():
-    # Read Input image
-    inputImage = cv2.imread("images/math-equation.png")
-
-    # Convert BGR to grayscale
-    grayscaleImage = cv2.cvtColor(inputImage, cv2.COLOR_BGR2GRAY)
-
-    # Threshold
-    binaryImage = cv2.adaptiveThreshold(grayscaleImage, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 85, 10)
-
-    # Dilate
-    kernel = np.ones((2,1), np.uint8)
-    dilate = cv2.dilate(binaryImage, kernel, iterations=1)
-
-    # For debug purpose only
-    cv2.imshow("processed-image", dilate)
-    cv2.waitKey(0)
-    
-    cv2.imwrite("images/processed-image.bmp", dilate)
-
-    img_open = Image.open("images/processed-image.bmp").convert("L")
-    img_open2 = torch.from_numpy(np.array(img_open)).type(torch.FloatTensor)
-    img_open2 = img_open2/255.0
-    img_open2 = img_open2.unsqueeze(0)
-    img_open2 = img_open2.unsqueeze(0)
-
-    attention, prediction = solver(img_open2, load_dict())
-    prediction_string = ''
-
-    for i in range(attention.shape[0]):
-        if prediction[i] == '<eol>':
-            continue
-        else:
-            prediction_string = prediction_string + prediction[i]
-
-    return prediction_string
 
 def solver(x_t, worddicts_r):
 
