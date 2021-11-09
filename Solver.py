@@ -111,8 +111,8 @@ def solver(x_t, worddicts_r):
 	encoder = encoder.cuda()
 	attn_decoder1 = attn_decoder1.cuda()
 
-	encoder.load_state_dict(torch.load(r'C:\Users\Schlu\Documents\Programmieren\SolverBackend\models\encoder_lr0.00001_GN_te1_d05_SGD_bs6_mask_conv_bn_b_xavier.pkl'))
-	attn_decoder1.load_state_dict(torch.load(r'C:\Users\Schlu\Documents\Programmieren\SolverBackend\models\attn_decoder_lr0.00001_GN_te1_d05_SGD_bs6_mask_conv_bn_b_xavier.pkl'))
+	encoder.load_state_dict(torch.load('models/encoder_lr0.00001_GN_te1_d05_SGD_bs6_mask_conv_bn_b_xavier.pkl'))
+	attn_decoder1.load_state_dict(torch.load('models/attn_decoder_lr0.00001_GN_te1_d05_SGD_bs6_mask_conv_bn_b_xavier.pkl'))
 
 	encoder.eval()
 	attn_decoder1.eval()
