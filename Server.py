@@ -40,6 +40,21 @@ def handle_form():
     
     return json_string
 
+@app.route('/api/calculate', methods=['POST'])
+def handle_form():
+
+    print("Posted file: {}".format(request.files['solution']))
+    equation = request.files['solution']
+    
+    final = calculate(equation)
+
+    json_string = json.dumps({
+        'status': 'successful',
+        'solution': final
+    })
+    
+    return json_string
+
 @app.route("/")
 def home():
 

@@ -62,8 +62,8 @@ def processing_image():
     binaryImage = cv2.adaptiveThreshold(image_out, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 85, 10)
 
     # For debug purpose only
-    cv2.imshow("processed-image", binaryImage)
-    cv2.waitKey(0)
+    #cv2.imshow("processed-image", binaryImage)
+    #cv2.waitKey(0)
     cv2.imwrite("images/processed-image.bmp", binaryImage)
 
     img_open = Image.open("images/processed-image.bmp").convert("L")
@@ -190,11 +190,13 @@ def solver(x_t, worddicts_r):
 
 	return k,prediction_real_show
 
-def calculate(formel, operation):
+def calculate(formel):
 	
+	print(formel)
 	sym = latex2sympy(formel)
 
 	print(sym)
+	return sym
 
 if __name__ == "__main__":
     print(processing_image())
