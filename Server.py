@@ -1,11 +1,10 @@
-from logging import setLoggerClass
 import os
 from flask import Flask, request, render_template
 from PIL import Image
 import json
 import base64
 from flask_ngrok import run_with_ngrok
-from Solver import processing_image
+from Solver import processing_image, calculate
 
 app = Flask(__name__)
 
@@ -13,6 +12,17 @@ run_with_ngrok(app)
 
 @app.route('/api', methods=['POST'])
 def handle_form():
+
+    if request.files['solution'] == True:
+        equation = calculate(request.files['solution'], request.files['solution'])
+
+        json_string = json.dumps({
+        'status': 'successful',
+        'solution': equation
+        })
+
+        return json_string
+
     print("Posted file: {}".format(request.files['image']))
     image = request.files['image']
     img = Image.open(image) 

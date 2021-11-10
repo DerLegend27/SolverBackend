@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 import numpy
 from PIL import Image
+from latex2sympy2 import latex2sympy, latex2latex
+from sympy import *
+
 
 import torch
 from torch.autograd import Variable
@@ -186,6 +189,12 @@ def solver(x_t, worddicts_r):
 	prediction_real_show = numpy.array(prediction_real)
 
 	return k,prediction_real_show
+
+def calculate(formel, operation):
+	
+	sym = latex2sympy(formel)
+
+	print(sym)
 
 if __name__ == "__main__":
     print(processing_image())
