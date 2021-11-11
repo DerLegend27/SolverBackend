@@ -13,20 +13,13 @@ run_with_ngrok(app)
 @app.route('/api', methods=['POST'])
 def handle_form():
 
-    if request.files['solution'] == True:
-        equation = calculate(request.files['solution'], request.files['solution'])
-
-        json_string = json.dumps({
-        'status': 'successful',
-        'solution': equation
-        })
-
-        return json_string
-
     print("Posted file: {}".format(request.files['image']))
     image = request.files['image']
     img = Image.open(image) 
-    img.save("images/math-equation.png")
+    new_img = img.resize((256, 256))
+
+    new_img.save("images/math-equation.png")
+    print(new_img.size)
 
     solution = processing_image()
 
@@ -41,7 +34,7 @@ def handle_form():
     return json_string
 
 @app.route('/api/calculate', methods=['POST'])
-def handle_form():
+def handle_formel():
 
     print("Posted file: {}".format(request.files['solution']))
     equation = request.files['solution']

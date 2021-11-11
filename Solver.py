@@ -20,27 +20,34 @@ maxlen = 100
 BLOCK_SIZE = 50
 THRESHOLD = 25
 
+
 def preprocess(image):
     image = cv2.medianBlur(image, 3)
     image = cv2.GaussianBlur(image, (3, 3), 0)
     return 255 - image
 
+
 def postprocess(image):
     image = cv2.medianBlur(image, 5)
-    #kernel = numpy.ones((3,3), numpy.uint8)
-    #image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
+    # kernel = numpy.ones((3,3), numpy.uint8)
+    # image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
     return image
 
-def get_block_index(image_shape, yx, block_size): 
-    y = numpy.arange(max(0, yx[0]-block_size), min(image_shape[0], yx[0]+block_size))
-    x = numpy.arange(max(0, yx[1]-block_size), min(image_shape[1], yx[1]+block_size))
+
+def get_block_index(image_shape, yx, block_size):
+    y = numpy.arange(max(0, yx[0]-block_size),
+                     min(image_shape[0], yx[0]+block_size))
+    x = numpy.arange(max(0, yx[1]-block_size),
+                     min(image_shape[1], yx[1]+block_size))
     return numpy.meshgrid(y, x)
+
 
 def adaptive_median_threshold(img_in):
     med = numpy.median(img_in)
     img_out = numpy.zeros_like(img_in)
     img_out[img_in - med < THRESHOLD] = 255
     return img_out
+
 
 def block_image_process(image, block_size):
     out_image = numpy.zeros_like(image)
@@ -52,6 +59,7 @@ def block_image_process(image, block_size):
 
     return out_image
 
+
 def processing_image():
     image_in = cv2.cvtColor(cv2.imread("images/math-equation.png"), cv2.COLOR_BGR2GRAY)
 
@@ -62,8 +70,8 @@ def processing_image():
     binaryImage = cv2.adaptiveThreshold(image_out, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 85, 10)
 
     # For debug purpose only
-    #cv2.imshow("processed-image", binaryImage)
-    #cv2.waitKey(0)
+    cv2.imshow("processed-image", binaryImage)
+    cv2.waitKey(0)
     cv2.imwrite("images/processed-image.bmp", binaryImage)
 
     img_open = Image.open("images/processed-image.bmp").convert("L")
@@ -145,7 +153,7 @@ def solver(x_t, worddicts_r):
 	decoder_hidden_t = torch.tanh(decoder_hidden_t)
 
 	prediction = torch.zeros(batch_size_t,maxlen)
-	#label = torch.zeros(batch_size_t,maxlen)
+	# label = torch.zeros(batch_size_t,maxlen)
 	prediction_sub = []
 	label_sub = []
 	decoder_attention_t = torch.zeros(batch_size_t,1,dense_input,output_area_t).cuda()
