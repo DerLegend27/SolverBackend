@@ -43,10 +43,10 @@ def resizeAndPad(img, size, padColor=0):
     return scaled_img
 
 
-h_img = cv2.imread('images/processed-image2.bmp') # horizontal image
-scaled_h_img = resizeAndPad(h_img, (200,200), 0)
+h_img = cv2.imread('images/processed-image.bmp') # horizontal image
+scaled_h_img = resizeAndPad(h_img, (2048,2048), 0)
 
 cv2.imshow("processed-image", scaled_h_img)
 cv2.waitKey(0)
-cv2.imwrite("images/math-equation4.png", scaled_h_img)
+cv2.imwrite("images/math-equation5.png", scaled_h_img)
 

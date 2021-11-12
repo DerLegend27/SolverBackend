@@ -61,7 +61,7 @@ def block_image_process(image, block_size):
 
 
 def processing_image():
-    image_in = cv2.cvtColor(cv2.imread("images/math-equation2.png"), cv2.COLOR_BGR2GRAY)
+    image_in = cv2.cvtColor(cv2.imread("images/math-equation.png"), cv2.COLOR_BGR2GRAY)
 
     image_in = preprocess(image_in)
     image_out = block_image_process(image_in, BLOCK_SIZE)
@@ -72,9 +72,9 @@ def processing_image():
     # For debug purpose only
     cv2.imshow("processed-image", binaryImage)
     cv2.waitKey(0)
-    cv2.imwrite("images/processed-image2.bmp", binaryImage)
+    cv2.imwrite("images/processed-image.bmp", binaryImage)
 
-    img_open = Image.open("images/processed-image2.bmp").convert("L")
+    img_open = Image.open("images/processed-image.bmp").convert("L")
     img_open2 = torch.from_numpy(np.array(img_open)).type(torch.FloatTensor)
     img_open2 = img_open2/255.0
     img_open2 = img_open2.unsqueeze(0)

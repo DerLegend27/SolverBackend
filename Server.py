@@ -15,6 +15,7 @@ def handle_form():
 
     print("Posted file: {}".format(request.files['image']))
     image = request.files['image']
+    print(type(image))
     img = Image.open(image) 
     new_img = img.resize((256, 256))
 

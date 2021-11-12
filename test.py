@@ -1,11 +1,12 @@
 from operator import pos
 from latex2sympy2 import latex2sympy, latex2latex
 from sympy import *
+from sympy import factor
 import sympy as sy
-from sympy.abc import x
+from sympy.abc import x, a, b
 import re
 
-tex = "f:x=x^{2}+5x+10x+5=0"
+tex = "\int_{a}^{b}x^2"
 
 def polynom_check(latex, char):
     pos = []
@@ -31,6 +32,7 @@ def polynom_solutions(equation):
     
     # Parabelfunktion
     parabel = sy.S(equation)
+    print(parabel)
 
     # Faktorisieren
     factors = simplify(equation)
@@ -45,7 +47,11 @@ def polynom_solutions(equation):
     solutions.append("2. Ableitung: " + str(parabel_diff_2))
 
     # Nullstellen
-    zero = sy.solve(parabel)
+    print(equation)
+    factorize = factor(equation)
+    print(factorize)
+    zero = sy.solve(factorize)
+    print(latex(zero))
     solutions.append("Nullstellen: " + str(zero))
 
     # Extremstellen
@@ -63,12 +69,14 @@ def calculate(latex):
     if sym == 0:
         latex = searching_for_error(latex)
 
-    if polynom_check(latex, '^') == True:
-        polynom = latex2sympy(latex)
-        solutions = polynom_solutions(polynom)
+    #if polynom_check(latex, '^') == True:
+    #    print("es ist eine Polynom-funktion")
+    #    polynom = latex2sympy(latex)
+    #    solutions = polynom_solutions(polynom)
 
-
-    print(solutions)
+    integral = integrate(x**2, x)
+    print(integral)
+    #print(solutions)
     #print(sym)
     #simply = simplify(sym)
     #print(simplify(sym))
