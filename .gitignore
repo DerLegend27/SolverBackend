@@ -139,6 +139,3 @@ cython_debug/∂
 
 # Mac
 .DS_Store
-
-# Individual
-Client.py
