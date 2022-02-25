@@ -2,11 +2,14 @@ import cv2
 import numpy as np
 import os
 from skimage.morphology import skeletonize as skl
+from classifier import classification
+import matplotlib.pyplot as plt
+import math
 
 ALPHA = 3
 BETA = 0
 
-def resizeAndPad(img, size, padColor=1):
+def resizeAndPad(img, size, padColor=0):
 
 	h, w = img.shape[:2]
 	sh, sw = size
@@ -47,10 +50,22 @@ def resizeAndPad(img, size, padColor=1):
 
 	return scaled_img
 
-
-def processing_image(image = "test-images/math-equation_0001.png"):
+def processing_image(image = "test-images/rt.png"):
 	# Input Image
 	inputImage = cv2.imread(image)
+
+	height, width = inputImage.shape[:2]
+	max_height = 300
+	max_width = 300
+
+	# only shrink if img is bigger than required
+	if max_height < height or max_width < width:
+		# get scaling factor
+		scaling_factor = max_height / float(height)
+		if max_width/float(width) < scaling_factor:
+			scaling_factor = max_width / float(width)
+		# resize image
+		inputImage = cv2.resize(inputImage, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
 
 	# Copy for debugging purpose
 	inputImageCopy = inputImage.copy()
@@ -70,15 +85,58 @@ def processing_image(image = "test-images/math-equation_0001.png"):
 	(cnts, boundingBoxes) = zip(*sorted(zip(contours, boundingBoxes),
 		key=lambda b:b[1][0], reverse=False))
 
-	count = 1
-	for c in list(boundingBoxes):
+	# --> meine creation <--
+
+	mathSymbols = list()
+
+	for c in boundingBoxes:
 		x,y,w,h = c
 
 		# Bounding box area
 		rectArea = w * h
 
 		# Minimum Area Threshold
-		minArea = 150
+		minArea = 25
+
+		if rectArea > minArea:
+			mathSymbols.append(c)
+			
+	mathSymbols = mathSymbols[6:]
+
+	min_y_numbers = list()
+	for i in range(len(mathSymbols)):
+		min_y_numbers.append(mathSymbols[i][1])
+
+	min_y = min(min_y_numbers)
+	
+	max_y_numbers = []
+	for i in range(len(mathSymbols)):
+		max_y_numbers.append(mathSymbols[i][1] + mathSymbols[i][3])
+
+	max_y = max(max_y_numbers)
+
+	#print(min_y)
+	#print(max_y)
+	
+	exponents = list()
+	for c in mathSymbols:
+		#print(c[1]+c[3], " und ", ((max_y-min_y)*6/10)+min_y)
+		if c[1]+c[3] <= math.ceil(((max_y-min_y)*6/10)+min_y):
+			print(c, "Das ist ein Exponent!")
+			exponents.append(c)
+	
+	#print(exponents)
+	# --> meine creation <--
+
+	count = 0
+	for c in boundingBoxes:
+		x,y,w,h = c
+
+		# Bounding box area
+		rectArea = w * h
+
+		# Minimum Area Threshold
+		minArea = 25
 
 		if rectArea > minArea:
 			cv2.rectangle(inputImageCopy,(x,y),(x+w,y+h),(0,255,0),2)
@@ -98,8 +156,19 @@ def processing_image(image = "test-images/math-equation_0001.png"):
 
 			reverse = 255-thinnedImage
 
-			cv2.imwrite("result-images/" + str(count) + ".png", reverse)
+			if c in exponents:
+				print(c)
+				cv2.imwrite("result-images/" + str(count) + "_exp" ".jpg", reverse)
+				count += 1
+				continue
+
+			cv2.imwrite("result-images/" + str(count) + ".jpg", reverse)
 			count += 1
-			
+	
+	#plt.imshow(inputImageCopy)
+	#plt.xticks([]), plt.yticks([])
+	#plt.show()
+
 if __name__ == "__main__":
 	processing_image()
+	
