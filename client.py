@@ -2,7 +2,9 @@ import requests
 from requests.exceptions import HTTPError
 
 files = {'image': open(r'C:\Users\Schlu\OneDrive\Desktop\Finalversion\test-images\math-equation_0001.png', 'rb')}
-url = 'http://localhost:5000/api'
+
+print(open(r'C:\Users\Schlu\OneDrive\Desktop\Finalversion\test-images\math-equation_0001.png', 'rb'))
+url = 'http://88.65.225.81'
 
 try:
     response = requests.post(url, files=files)
